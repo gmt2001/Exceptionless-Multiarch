@@ -3,9 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ElasticSearch", "ElasticSearch", "{FF37674E-613E-4FC2-B1A0-A09989B6E838}"
+	ProjectSection(SolutionItems) = preProject
+		ElasticSearch\Dockerfile = ElasticSearch\Dockerfile
+		ElasticSearch\elasticsearch.yml = ElasticSearch\elasticsearch.yml
+		ElasticSearch\GPG-KEY-elasticsearch = ElasticSearch\GPG-KEY-elasticsearch
+		ElasticSearch\jvm.options = ElasticSearch\jvm.options
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{79EEF1E3-8D71-4E12-8401-A518C6C1D617}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{CBBCDC69-83E5-46DB-9187-9D83279BAE2D}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CBBCDC69-83E5-46DB-9187-9D83279BAE2D} = {79EEF1E3-8D71-4E12-8401-A518C6C1D617}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {58AFA41D-2251-49B7-81C1-E4852D3B2037}
