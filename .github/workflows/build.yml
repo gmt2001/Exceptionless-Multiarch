@@ -4,7 +4,9 @@ on:
   push:
 
 env:
-  ELASTIC_VERSION: 7.6.2
+  ELASTIC_VERSION: 7.6.0
+  KIBANA_VERSION: 7.6.0
+  KIBANA_NODE_VERSION: 10.18.0
 
 jobs:
   build-elastic:
@@ -48,3 +50,44 @@ jobs:
       run: |
         cd ${GITHUB_WORKSPACE}/ElasticSearch
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/elasticsearch:${ELASTIC_VERSION} --build-arg ELASTICSEARCH_VERSION=${ELASTIC_VERSION} --push .
+  build-kibana:
+    name: Docker Build of Kibana on ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Credentials
+      id: check_credentials
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_CLITOKEN: ${{ secrets.DOCKER_CLITOKEN }}
+      run: |
+        if [ "${DOCKER_USER}" == "" ]; then
+          echo "Missing User"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        elif [ "${DOCKER_CLITOKEN}" == "" ]; then
+          echo "Missing Cli Token"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        else
+          echo "All secrets present"
+          echo "##[set-output name=missingsecrets;]$(echo no)"
+        fi
+    - name: Checkout Repository
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - name: Set up Docker Buildx
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        buildx-version: latest
+        qemu-version: latest
+    - name: Login to DockerHub Registry
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Build and Push Nightly Build
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      run: |
+        cd ${GITHUB_WORKSPACE}/Kibana
+        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/kibana:${KIBANA_VERSION} --build-arg KIBANA_VERSION=${KIBANA_VERSION} --build-arg KIBANA_NODE_VERSION=${KIBANA_NODE_VERSION} --push .
