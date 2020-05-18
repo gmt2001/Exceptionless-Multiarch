@@ -35,6 +35,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Puppeteer", "Puppeteer", "{
 		Puppeteer\package.json = Puppeteer\package.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exceptionless", "Exceptionless", "{661EB23E-2A4A-4D3A-B250-F6CB9C3A14A6}"
+	ProjectSection(SolutionItems) = preProject
+		Exceptionless\Dockerfile.new = Exceptionless\Dockerfile.new
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

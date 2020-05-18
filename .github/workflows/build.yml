@@ -46,7 +46,7 @@ jobs:
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push Nightly Build
+    - name: Build and Push Docker
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
@@ -87,7 +87,7 @@ jobs:
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push Nightly Build
+    - name: Build and Push  Docker
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
@@ -128,7 +128,7 @@ jobs:
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push Nightly Build
+    - name: Build and Push  Docker
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
@@ -169,14 +169,15 @@ jobs:
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push Nightly Build
+    - name: Build and Push  Docker
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
-        mkdir ${GITHUB_WORKSPACE}/Exceptionless
         cd ${GITHUB_WORKSPACE}/Exceptionless
         git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
+        rm Dockerfile
+        mv Dockerfile.new Dockerfile
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --push .
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --push .
   build-exceptionless-ui:
@@ -214,7 +215,7 @@ jobs:
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push Nightly Build
+    - name: Build and Push  Docker
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
