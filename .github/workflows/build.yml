@@ -174,10 +174,11 @@ jobs:
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
-        cd ${GITHUB_WORKSPACE}/Exceptionless
+        mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
+        cd ${GITHUB_WORKSPACE}/Exceptionless-Build
         git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
         rm Dockerfile
-        mv Dockerfile.new Dockerfile
+        mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --push .
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --push .
   build-exceptionless-ui:
