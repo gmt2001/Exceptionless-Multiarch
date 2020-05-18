@@ -7,6 +7,9 @@ env:
   ELASTIC_VERSION: 7.6.0
   KIBANA_VERSION: 7.6.0
   KIBANA_NODE_VERSION: 10.18.0
+  PUPPETEER_VERSION: 1.15.0
+  EXCEPTIONLESS_VERSION: 6.0.0
+  EXCEPTIONLESS_UI_VERSION: 2.8.0
 
 jobs:
   build-elastic:
@@ -91,3 +94,133 @@ jobs:
       run: |
         cd ${GITHUB_WORKSPACE}/Kibana
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/kibana:${KIBANA_VERSION} --build-arg KIBANA_VERSION=${KIBANA_VERSION} --build-arg KIBANA_NODE_VERSION=${KIBANA_NODE_VERSION} --push .
+  build-puppeteer:
+    name: Docker Build of Node + Puppeteer on ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Credentials
+      id: check_credentials
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_CLITOKEN: ${{ secrets.DOCKER_CLITOKEN }}
+      run: |
+        if [ "${DOCKER_USER}" == "" ]; then
+          echo "Missing User"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        elif [ "${DOCKER_CLITOKEN}" == "" ]; then
+          echo "Missing Cli Token"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        else
+          echo "All secrets present"
+          echo "##[set-output name=missingsecrets;]$(echo no)"
+        fi
+    - name: Checkout Repository
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - name: Set up Docker Buildx
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        buildx-version: latest
+        qemu-version: latest
+    - name: Login to DockerHub Registry
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Build and Push Nightly Build
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      run: |
+        cd ${GITHUB_WORKSPACE}/Puppeteer
+        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/puppeteer:${PUPPETEER_VERSION} --push .
+  build-exceptionless:
+    name: Docker Build of Exceptionless on ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Credentials
+      id: check_credentials
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_CLITOKEN: ${{ secrets.DOCKER_CLITOKEN }}
+      run: |
+        if [ "${DOCKER_USER}" == "" ]; then
+          echo "Missing User"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        elif [ "${DOCKER_CLITOKEN}" == "" ]; then
+          echo "Missing Cli Token"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        else
+          echo "All secrets present"
+          echo "##[set-output name=missingsecrets;]$(echo no)"
+        fi
+    - name: Checkout Repository
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - name: Set up Docker Buildx
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        buildx-version: latest
+        qemu-version: latest
+    - name: Login to DockerHub Registry
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Build and Push Nightly Build
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      run: |
+        mkdir ${GITHUB_WORKSPACE}/Exceptionless
+        cd ${GITHUB_WORKSPACE}/Exceptionless
+        git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
+        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --push .
+  build-exceptionless-ui:
+    name: Docker Build of Exceptionless.UI on ubuntu-latest
+    runs-on: ubuntu-latest
+    needs: build-puppeteer
+    steps:
+    - name: Check Credentials
+      id: check_credentials
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_CLITOKEN: ${{ secrets.DOCKER_CLITOKEN }}
+      run: |
+        if [ "${DOCKER_USER}" == "" ]; then
+          echo "Missing User"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        elif [ "${DOCKER_CLITOKEN}" == "" ]; then
+          echo "Missing Cli Token"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        else
+          echo "All secrets present"
+          echo "##[set-output name=missingsecrets;]$(echo no)"
+        fi
+    - name: Checkout Repository
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - name: Set up Docker Buildx
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        buildx-version: latest
+        qemu-version: latest
+    - name: Login to DockerHub Registry
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Build and Push Nightly Build
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      run: |
+        mkdir ${GITHUB_WORKSPACE}/Exceptionless.UI
+        cd ${GITHUB_WORKSPACE}/Exceptionless.UI
+        git clone --branch v${EXCEPTIONLESS_UI_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.UI.git .
+        sed -i 's/buildkite\/puppeteer:v${PUPPETEER_VERSION}/${DOCKER_USER}\/puppeteer:${PUPPETEER_VERSION}/' Dockerfile
+        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/exceptionless-ui:${EXCEPTIONLESS_UI_VERSION} --push .

@@ -4,6 +4,7 @@ ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
 ARG KIBANA_VERSION
+ARG KIBANA_NODE_VERSION
 
 ###############################################################################
 #                                INSTALLATION

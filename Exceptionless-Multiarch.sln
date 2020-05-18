@@ -28,6 +28,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kibana", "Kibana", "{079B27
 		Kibana\Dockerfile = Kibana\Dockerfile
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Puppeteer", "Puppeteer", "{0AF58120-35C3-40B6-803D-17318871EB9D}"
+	ProjectSection(SolutionItems) = preProject
+		Puppeteer\Dockerfile = Puppeteer\Dockerfile
+		Puppeteer\package-lock.json = Puppeteer\package-lock.json
+		Puppeteer\package.json = Puppeteer\package.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
