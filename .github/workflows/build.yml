@@ -181,8 +181,8 @@ jobs:
         git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
         rm Dockerfile
         mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --push .
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --push .
   build-exceptionless-ui:
     name: Docker Build of Exceptionless.UI on ubuntu-latest
     runs-on: ubuntu-latest
@@ -227,4 +227,4 @@ jobs:
         cd ${GITHUB_WORKSPACE}/Exceptionless.UI
         git clone --branch v${EXCEPTIONLESS_UI_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.UI.git .
         sed -i 's/buildkite\/puppeteer:v${PUPPETEER_VERSION}/${DOCKER_USER}\/puppeteer:${PUPPETEER_VERSION}/' Dockerfile
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/exceptionless-ui:${EXCEPTIONLESS_UI_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/exceptionless-ui:${EXCEPTIONLESS_UI_VERSION} --push .
