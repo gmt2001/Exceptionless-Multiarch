@@ -53,6 +53,10 @@ jobs:
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
+        if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/elasticsearch/tags/${ELASTIC_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
+          echo Build already published, skipping...
+          exit 0
+        fi
         cd ${GITHUB_WORKSPACE}/ElasticSearch
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/elasticsearch:${ELASTIC_VERSION} --build-arg ELASTICSEARCH_VERSION=${ELASTIC_VERSION} --push .
   build-kibana:
@@ -94,6 +98,10 @@ jobs:
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
+        if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/kibana/tags/${KIBANA_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
+          echo Build already published, skipping...
+          exit 0
+        fi
         cd ${GITHUB_WORKSPACE}/Kibana
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/kibana:${KIBANA_VERSION} --build-arg KIBANA_VERSION=${KIBANA_VERSION} --build-arg KIBANA_NODE_VERSION=${KIBANA_NODE_VERSION} --push .
   build-puppeteer:
@@ -135,6 +143,10 @@ jobs:
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
+        if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/puppeteer/tags/${PUPPETEER_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
+          echo Build already published, skipping...
+          exit 0
+        fi
         cd ${GITHUB_WORKSPACE}/Puppeteer
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/puppeteer:${PUPPETEER_VERSION} --build-arg PUPPETEER_NODE_VERSION=${PUPPETEER_NODE_VERSION} --push .
   build-exceptionless:
@@ -176,6 +188,10 @@ jobs:
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
+        if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/exceptionless-api/tags/${EXCEPTIONLESS_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
+          echo Build already published, skipping...
+          exit 0
+        fi
         mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
         cd ${GITHUB_WORKSPACE}/Exceptionless-Build
         git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
@@ -223,6 +239,10 @@ jobs:
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
+        if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/exceptionless-ui/tags/${EXCEPTIONLESS_UI_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
+          echo Build already published, skipping...
+          exit 0
+        fi
         mkdir ${GITHUB_WORKSPACE}/Exceptionless.UI
         cd ${GITHUB_WORKSPACE}/Exceptionless.UI
         git clone --branch v${EXCEPTIONLESS_UI_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.UI.git .
