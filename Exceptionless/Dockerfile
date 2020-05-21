@@ -56,6 +56,7 @@ RUN set -x \
 
 # job
 
+ARG EXCEPTIONLESS_DOTNET_VERSION
 FROM mcr.microsoft.com/dotnet/core/aspnet:${EXCEPTIONLESS_DOTNET_VERSION} AS job
 WORKDIR /app
 COPY --from=job-publish /app/src/Exceptionless.Job/out ./
@@ -80,6 +81,7 @@ RUN set -x \
 
 # api
 
+ARG EXCEPTIONLESS_DOTNET_VERSION
 FROM mcr.microsoft.com/dotnet/core/aspnet:${EXCEPTIONLESS_DOTNET_VERSION} AS api
 WORKDIR /app
 COPY --from=api-publish /app/src/Exceptionless.Web/out ./
