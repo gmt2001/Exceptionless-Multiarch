@@ -76,15 +76,29 @@ RUN mkdir ${KIBANA_HOME} \
 ### NodeJS version 10.15.2 is required for Kibana version 7.4.1.  Delete node distribution included with kibana and replace with manually installed version
 RUN set -x \
   && if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then rm -rf /opt/kibana/node \
-  && curl -O https://nodejs.org/dist/v${KIBANA_NODE_VERSION}/node-v${KIBANA_NODE_VERSION}-linux-armv6l.tar.gz \
-  && tar -xvf node-v${KIBANA_NODE_VERSION}-linux-armv6l.tar.gz \
-  && mv node-v${KIBANA_NODE_VERSION}-linux-armv6l /opt/kibana/node ; fi
+  && curl -O https://nodejs.org/dist/v${KIBANA_NODE_VERSION}/node-v${KIBANA_NODE_VERSION}-linux-armv7l.tar.gz \
+  && tar -xvf node-v${KIBANA_NODE_VERSION}-linux-armv7l.tar.gz \
+  && mv node-v${KIBANA_NODE_VERSION}-linux-armv7l /opt/kibana/node ; fi
+
+  RUN set -x \
+  && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then rm -rf /opt/kibana/node \
+  && curl -O https://nodejs.org/dist/v${KIBANA_NODE_VERSION}/node-v${KIBANA_NODE_VERSION}-linux-arm64.tar.gz \
+  && tar -xvf node-v${KIBANA_NODE_VERSION}-linux-armv64.tar.gz \
+  && mv node-v${KIBANA_NODE_VERSION}-linux-armv64 /opt/kibana/node ; fi
 
 
 RUN set -x \
   && if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then git clone --branch v0.25.0 --depth 1 https://github.com/nodegit/nodegit.git \
   && cd /nodegit \
-  && wget https://github.com/fg2it/phantomjs-on-raspberry/releases/download/v2.1.1-wheezy-jessie-armv6/phantomjs \
+  && wget https://github.com/fg2it/phantomjs-on-raspberry/releases/download/v2.1.1-wheezy-jessie/phantomjs \
+  && export PATH=$PATH:/nodegit:/opt/kibana/node/bin/ \
+  && chmod -R 777 /nodegit ; fi
+  # && /opt/kibana/node/bin/npm install --unsafe-perm ; fi
+
+  RUN set -x \
+  && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then git clone --branch v0.25.0 --depth 1 https://github.com/nodegit/nodegit.git \
+  && cd /nodegit \
+  && wget https://github.com/fg2it/phantomjs-on-raspberry/releases/download/v2.1.1-jessie-stretch-arm64/phantomjs \
   && export PATH=$PATH:/nodegit:/opt/kibana/node/bin/ \
   && chmod -R 777 /nodegit ; fi
   # && /opt/kibana/node/bin/npm install --unsafe-perm ; fi
@@ -100,10 +114,20 @@ RUN set -x \
   && export PATH=$PATH:/nodegit:/opt/kibana/node/bin/ \
   && /opt/kibana/node/bin/npm install ctags --unsafe-perm ; fi
 
+  RUN set -x \
+  && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then cd /nodegit \
+  && export PATH=$PATH:/nodegit:/opt/kibana/node/bin/ \
+  && /opt/kibana/node/bin/npm install ctags --unsafe-perm ; fi
+
 RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then mv /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-x64 /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm \
-  && mv /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm/ctags.node.old \
-  && cp /nodegit/node_modules/ctags/build/Release/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm ; fi
+  && if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-x64 /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm \
+  && mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm/ctags.node.old \
+  && cp -v /nodegit/node_modules/ctags/build/Release/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm ; fi
+
+  RUN set -x \
+  && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-x64 /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64 \
+  && mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64/ctags.node.old \
+  && cp -v /nodegit/node_modules/ctags/build/Release/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64 ; fi
 
 
 USER ${KIBANA_UID}
