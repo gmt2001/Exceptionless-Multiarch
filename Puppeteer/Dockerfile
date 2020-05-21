@@ -3,7 +3,8 @@
 # Based upon:
 # https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#running-puppeteer-in-docker
 
-FROM node:10.15.3-slim
+ARG PUPPETEER_NODE_VERSION
+FROM node:${PUPPETEER_NODE_VERSION}-slim
 
 RUN  apt-get update \
      && apt-get install -y wget --no-install-recommends \
