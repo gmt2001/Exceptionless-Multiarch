@@ -83,7 +83,7 @@ RUN set -x \
   RUN set -x \
   && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then rm -rf /opt/kibana/node \
   && curl -O https://nodejs.org/dist/v${KIBANA_NODE_VERSION}/node-v${KIBANA_NODE_VERSION}-linux-arm64.tar.gz \
-  && tar -xvf node-v${KIBANA_NODE_VERSION}-linux-armv64.tar.gz \
+  && tar -xvf node-v${KIBANA_NODE_VERSION}-linux-arm64.tar.gz \
   && mv node-v${KIBANA_NODE_VERSION}-linux-armv64 /opt/kibana/node ; fi
 
 
