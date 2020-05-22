@@ -119,15 +119,15 @@ RUN set -x \
   && export PATH=$PATH:/nodegit:/opt/kibana/node/bin/ \
   && /opt/kibana/node/bin/npm install ctags --unsafe-perm ; fi
 
-RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-x64 /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm \
-  && mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm/ctags.node.old \
-  && cp -v /nodegit/node_modules/ctags/build/Release/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm ; fi
+#RUN set -x \
+  #&& if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-x64 /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm \
+  #&& mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm/ctags.node.old \
+  #&& cp -v /nodegit/node_modules/ctags/build/Release/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm ; fi
 
-  RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-x64 /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64 \
-  && mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64/ctags.node.old \
-  && cp -v /nodegit/node_modules/ctags/build/Release/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64 ; fi
+  #RUN set -x \
+  #&& if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-x64 /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64 \
+  #&& mv -v /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64/ctags.node.old \
+  #&& cp -v /nodegit/node_modules/ctags/build/Release/ctags.node /opt/kibana/node_modules/@elastic/node-ctags/ctags/build/ctags-node-v64-linux-arm64 ; fi
 
 
 USER ${KIBANA_UID}
