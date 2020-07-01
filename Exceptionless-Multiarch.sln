@@ -20,12 +20,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{90E02959-EFCE-44FB-9069-C269D3CAF824}"
 	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kibana", "Kibana", "{079B27E9-23C5-482C-B0E2-35787BBE5DC0}"
 	ProjectSection(SolutionItems) = preProject
 		Kibana\Dockerfile = Kibana\Dockerfile
+		Kibana\kibana.yml = Kibana\kibana.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Puppeteer", "Puppeteer", "{0AF58120-35C3-40B6-803D-17318871EB9D}"
@@ -38,6 +40,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exceptionless", "Exceptionless", "{661EB23E-2A4A-4D3A-B250-F6CB9C3A14A6}"
 	ProjectSection(SolutionItems) = preProject
 		Exceptionless\Dockerfile = Exceptionless\Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exceptionless.UI", "Exceptionless.UI", "{E0F62BA1-8F1E-4EE6-A6B4-798466B52C86}"
+	ProjectSection(SolutionItems) = preProject
+		Exceptionless.UI\Dockerfile = Exceptionless.UI\Dockerfile
 	EndProjectSection
 EndProject
 Global

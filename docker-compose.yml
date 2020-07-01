@@ -1,0 +1,104 @@
+version: '3.6'
+
+services:
+  api:
+    depends_on:
+      - elasticsearch
+      - redis
+    image: gmt2001/exceptionless-api:6.0.0
+    environment:
+      EX_AppMode: Production
+      EX_BaseURL: http://localhost:5100 #URL to UI
+      EX_ConnectionStrings__Cache: provider=redis
+      EX_ConnectionStrings__Elasticsearch: server=http://elasticsearch:9200
+      #EX_ConnectionStrings__Email: smtps://user:password@smtp.host.com:587 #smtps connection string, required for emails
+      EX_ConnectionStrings__MessageBus: provider=redis
+      #EX_ConnectionStrings__Metrics: provider=statsd;server=statsd;
+      EX_ConnectionStrings__Queue: provider=redis
+      EX_ConnectionStrings__Redis: server=redis,abortConnect=false
+      EX_ConnectionStrings__Storage: provider=folder;path=/app/storage
+      EX_RunJobsInProcess: 'false'
+    ports:
+      - 5000:80 # This can be commented out if using reverse proxy.
+    volumes:
+      - appdata:/app/storage
+
+  jobs:
+    depends_on:
+      - api
+    image: gmt2001/exceptionless-job:6.0.0
+    environment:
+      EX_AppMode: Production
+      EX_BaseURL: http://localhost:5100 #URL to UI
+      EX_ConnectionStrings__Cache: provider=redis
+      EX_ConnectionStrings__Elasticsearch: server=http://elasticsearch:9200
+      #EX_ConnectionStrings__Email: smtps://user:password@smtp.host.com:587 #smtps connection string, required for emails
+      EX_ConnectionStrings__MessageBus: provider=redis
+      #EX_ConnectionStrings__Metrics: provider=statsd;server=statsd;
+      EX_ConnectionStrings__Queue: provider=redis
+      EX_ConnectionStrings__Redis: server=redis,abortConnect=false
+      EX_ConnectionStrings__Storage: provider=folder;path=/app/storage
+    volumes:
+      - appdata:/app/storage
+
+  ui:
+    image: gmt2001/exceptionless-ui:2.9.0
+    environment:
+      AppMode: Production
+      EX_ApiUrl: http://localhost:5000 #URL to API
+      EX_Html5Mode: 'true'
+      EX_EnableSsl: 'false' #Set true to force https
+      EX_EnableAccountCreation: 'true' #Set false to only allow account creation by admins
+      EX_ExceptionlessServerUrl: http://localhost:5100 #URI to UI
+    ports:
+      - 5100:80 # This can be commented out if using reverse proxy.
+
+#  reverseproxy:
+#    depends_on:
+#      - api
+#      - ui
+#    image: valian/docker-nginx-auto-ssl
+#    ports:
+#      - 80:80
+#      - 443:443
+#    volumes:
+#      - ssldata:/etc/resty-auto-ssl
+#    environment:
+#      ALLOWED_DOMAINS: '(ex-ui|ex-api).mydomainn.com'
+#      SITES: 'ex-ui.mydomainn.com=ui;ex-api.mydomainn.com=api'
+
+  elasticsearch:
+    image: gmt2001/elasticsearch:7.7.1
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - esdata:/var/data/elasticsearch
+
+  kibana:
+    depends_on:
+      - elasticsearch
+    image: gmt2001/kibana:7.7.1
+    ports:
+      - 5601:5601
+
+  redis:
+    image: redis:5.0-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redisdata:/data
+
+volumes:
+  esdata:
+    driver: local
+  appdata:
+    driver: local
+  redisdata:
+    driver: local
+#  ssldata:
+#    driver: local
