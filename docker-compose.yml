@@ -6,6 +6,7 @@ services:
       - elasticsearch
       - redis
     image: gmt2001/exceptionless-api:6.0.0
+    restart: always
     environment:
       EX_AppMode: Production
       EX_BaseURL: http://localhost:5100 #URL to UI
@@ -27,6 +28,7 @@ services:
     depends_on:
       - api
     image: gmt2001/exceptionless-job:6.0.0
+    restart: always
     environment:
       EX_AppMode: Production
       EX_BaseURL: http://localhost:5100 #URL to UI
@@ -43,6 +45,7 @@ services:
 
   ui:
     image: gmt2001/exceptionless-ui:2.9.0
+    restart: always
     environment:
       AppMode: Production
       EX_ApiUrl: http://localhost:5000 #URL to API
@@ -58,6 +61,7 @@ services:
 #      - api
 #      - ui
 #    image: valian/docker-nginx-auto-ssl
+#    restart: always
 #    ports:
 #      - 80:80
 #      - 443:443
@@ -69,13 +73,17 @@ services:
 
   elasticsearch:
     image: gmt2001/elasticsearch:7.7.1
+    restart: always
     environment:
       discovery.type: single-node
       xpack.security.enabled: 'false'
       ES_JAVA_OPTS: -Xms512m -Xmx512m
-    ports:
-      - 9200:9200
-      - 9300:9300
+#    ports:
+#      - 9200:9200
+#      - 9300:9300
+    expose:
+      - 9200
+      - 9300
     volumes:
       - esdata:/var/data/elasticsearch
 
@@ -83,13 +91,19 @@ services:
     depends_on:
       - elasticsearch
     image: gmt2001/kibana:7.7.1
-    ports:
-      - 5601:5601
+    restart: always
+#    ports:
+#      - 5601:5601
+    expose:
+      - 5601
 
   redis:
     image: redis:5.0-alpine
-    ports:
-      - 6379:6379
+    restart: always
+#    ports:
+#      - 6379:6379
+    expose:
+      - 6379
     volumes:
       - redisdata:/data
 
