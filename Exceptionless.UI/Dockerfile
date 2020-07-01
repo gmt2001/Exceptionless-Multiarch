@@ -33,7 +33,7 @@ COPY src/. .
 
 USER root
 RUN npx grunt build
-RUN sed -i 's/<head>/<head <base href="\/" \/>/' /app/index.html
+RUN sed -i 's/<head>/<head><base href="\/" \/>/' /app/dist/index.html
 
 # testrunner
 
