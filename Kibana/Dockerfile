@@ -79,7 +79,7 @@ RUN set -x \
   && tar -xvf node-v${KIBANA_NODE_VERSION}-linux-arm64.tar.gz \
   && mv node-v${KIBANA_NODE_VERSION}-linux-arm64 /opt/kibana/node ; fi
 
-
+EXPOSE 5601
 
 USER ${KIBANA_UID}
 
