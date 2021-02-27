@@ -2,16 +2,17 @@ name: Build
 
 on:
   push:
+  workflow_dispatch:
 
 env:
-  ELASTIC_VERSION: 7.7.1
-  KIBANA_VERSION: 7.7.1
+  ELASTIC_VERSION: 7.10.0
+  KIBANA_VERSION: 7.10.0
   KIBANA_NODE_VERSION: 10.19.0
   PUPPETEER_VERSION: 1.15.0
   PUPPETEER_NODE_VERSION: 10.15.3
-  EXCEPTIONLESS_VERSION: 6.0.0
-  EXCEPTIONLESS_DOTNET_VERSION: 3.1
-  EXCEPTIONLESS_UI_VERSION: 2.9.0
+  EXCEPTIONLESS_VERSION: 7.0.9
+  EXCEPTIONLESS_DOTNET_VERSION: 5.0
+  EXCEPTIONLESS_UI_VERSION: 3.0.12
 
 jobs:
   build-elastic:
@@ -58,7 +59,7 @@ jobs:
           exit 0
         fi
         cd ${GITHUB_WORKSPACE}/ElasticSearch
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/elasticsearch:${ELASTIC_VERSION} --build-arg ELASTICSEARCH_VERSION=${ELASTIC_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --file Dockerfile -t ${DOCKER_USER}/elasticsearch:latest -t ${DOCKER_USER}/elasticsearch:${ELASTIC_VERSION} --build-arg ELASTICSEARCH_VERSION=${ELASTIC_VERSION} --push .
   build-kibana:
     name: Docker Build of Kibana on ubuntu-latest
     runs-on: ubuntu-latest
@@ -103,7 +104,7 @@ jobs:
           exit 0
         fi
         cd ${GITHUB_WORKSPACE}/Kibana
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/kibana:${KIBANA_VERSION} --build-arg KIBANA_VERSION=${KIBANA_VERSION} --build-arg KIBANA_NODE_VERSION=${KIBANA_NODE_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --file Dockerfile -t ${DOCKER_USER}/kibana:latest -t ${DOCKER_USER}/kibana:${KIBANA_VERSION} --build-arg KIBANA_VERSION=${KIBANA_VERSION} --build-arg KIBANA_NODE_VERSION=${KIBANA_NODE_VERSION} --push .
   build-puppeteer:
     name: Docker Build of Node + Puppeteer on ubuntu-latest
     runs-on: ubuntu-latest
@@ -148,7 +149,7 @@ jobs:
           exit 0
         fi
         cd ${GITHUB_WORKSPACE}/Puppeteer
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/puppeteer:${PUPPETEER_VERSION} --build-arg PUPPETEER_NODE_VERSION=${PUPPETEER_NODE_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --file Dockerfile -t ${DOCKER_USER}/puppeteer:${PUPPETEER_VERSION} --build-arg PUPPETEER_NODE_VERSION=${PUPPETEER_NODE_VERSION} --push .
   build-exceptionless:
     name: Docker Build of Exceptionless on ubuntu-latest
     runs-on: ubuntu-latest
@@ -197,8 +198,9 @@ jobs:
         git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
         rm Dockerfile
         mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --push .
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:latest -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --target app --file Dockerfile -t ${DOCKER_USER}/exceptionless-app:latest -t ${DOCKER_USER}/exceptionless-app:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:latest -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
   build-exceptionless-ui:
     name: Docker Build of Exceptionless.UI on ubuntu-latest
     runs-on: ubuntu-latest
@@ -248,4 +250,4 @@ jobs:
         git clone --branch v${EXCEPTIONLESS_UI_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.UI.git .
         rm Dockerfile
         mv ${GITHUB_WORKSPACE}/Exceptionless.UI/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless.UI-Build/Dockerfile
-        docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --file Dockerfile -t ${DOCKER_USER}/exceptionless-ui:${EXCEPTIONLESS_UI_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION}  --build-arg PUPPETEER_VERSION=${PUPPETEER_VERSION}  --build-arg DOCKER_USER=${DOCKER_USER} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --file Dockerfile -t ${DOCKER_USER}/exceptionless-ui:latest -t ${DOCKER_USER}/exceptionless-ui:${EXCEPTIONLESS_UI_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION}  --build-arg PUPPETEER_VERSION=${PUPPETEER_VERSION}  --build-arg DOCKER_USER=${DOCKER_USER} --push .

@@ -68,12 +68,6 @@ RUN mkdir ${KIBANA_HOME} \
 ### Kibana
 
 RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then rm -rf /opt/kibana/node \
-  && curl -O https://nodejs.org/dist/v${KIBANA_NODE_VERSION}/node-v${KIBANA_NODE_VERSION}-linux-armv6l.tar.gz \
-  && tar -xvf node-v${KIBANA_NODE_VERSION}-linux-armv6l.tar.gz \
-  && mv node-v${KIBANA_NODE_VERSION}-linux-armv6l /opt/kibana/node ; fi
-
-  RUN set -x \
   && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then rm -rf /opt/kibana/node \
   && curl -O https://nodejs.org/dist/v${KIBANA_NODE_VERSION}/node-v${KIBANA_NODE_VERSION}-linux-arm64.tar.gz \
   && tar -xvf node-v${KIBANA_NODE_VERSION}-linux-arm64.tar.gz \

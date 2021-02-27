@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ElasticSearch", "ElasticSearch", "{FF37674E-613E-4FC2-B1A0-A09989B6E838}"
 	ProjectSection(SolutionItems) = preProject
 		ElasticSearch\Dockerfile = ElasticSearch\Dockerfile
-		ElasticSearch\elasticsearch.yml = ElasticSearch\elasticsearch.yml
-		ElasticSearch\GPG-KEY-elasticsearch = ElasticSearch\GPG-KEY-elasticsearch
-		ElasticSearch\jvm.options = ElasticSearch\jvm.options
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{79EEF1E3-8D71-4E12-8401-A518C6C1D617}"

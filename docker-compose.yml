@@ -1,37 +1,41 @@
-version: '3.6'
+version: '3.7'
 
 services:
-  api:
+  app:
     depends_on:
       - elasticsearch
       - redis
-    image: gmt2001/exceptionless-api:6.0.0
+    image: gmt2001/exceptionless-app:latest
     restart: always
     environment:
       EX_AppMode: Production
-      EX_BaseURL: http://localhost:5100 #URL to UI
       EX_ConnectionStrings__Cache: provider=redis
       EX_ConnectionStrings__Elasticsearch: server=http://elasticsearch:9200
-      #EX_ConnectionStrings__Email: smtps://user:password@smtp.host.com:587 #smtps connection string, required for emails
       EX_ConnectionStrings__MessageBus: provider=redis
       #EX_ConnectionStrings__Metrics: provider=statsd;server=statsd;
       EX_ConnectionStrings__Queue: provider=redis
       EX_ConnectionStrings__Redis: server=redis,abortConnect=false
       EX_ConnectionStrings__Storage: provider=folder;path=/app/storage
+      #ASPNETCORE_URLS: http://+;https://+
+      #ASPNETCORE_HTTPS_PORT: 5001
+      #ASPNETCORE_Kestrel__Certificates__Default__Password: password
+      #ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
       EX_RunJobsInProcess: 'false'
     ports:
-      - 5000:80 # This can be commented out if using reverse proxy.
+      - 5000:80
+      - 5001:443
     volumes:
       - appdata:/app/storage
+      - ssldata:/https
 
   jobs:
     depends_on:
-      - api
-    image: gmt2001/exceptionless-job:6.0.0
+      - app
+    image: gmt2001/exceptionless-job:latest
     restart: always
     environment:
       EX_AppMode: Production
-      EX_BaseURL: http://localhost:5100 #URL to UI
+      EX_BaseURL: http://localhost:5100
       EX_ConnectionStrings__Cache: provider=redis
       EX_ConnectionStrings__Elasticsearch: server=http://elasticsearch:9200
       #EX_ConnectionStrings__Email: smtps://user:password@smtp.host.com:587 #smtps connection string, required for emails
@@ -43,76 +47,48 @@ services:
     volumes:
       - appdata:/app/storage
 
-  ui:
-    image: gmt2001/exceptionless-ui:2.9.0
-    restart: always
-    environment:
-      AppMode: Production
-      EX_ApiUrl: http://localhost:5000 #URL to API
-      EX_Html5Mode: 'true'
-      EX_EnableSsl: 'false' #Set true to force https
-      EX_EnableAccountCreation: 'true' #Set false to only allow account creation by admins
-      EX_ExceptionlessServerUrl: http://localhost:5100 #URI to UI
-    ports:
-      - 5100:80 # This can be commented out if using reverse proxy.
-
-#  reverseproxy:
-#    depends_on:
-#      - api
-#      - ui
-#    image: valian/docker-nginx-auto-ssl
-#    restart: always
-#    ports:
-#      - 80:80
-#      - 443:443
-#    volumes:
-#      - ssldata:/etc/resty-auto-ssl
-#    environment:
-#      ALLOWED_DOMAINS: '(ex-ui|ex-api).mydomainn.com'
-#      SITES: 'ex-ui.mydomainn.com=ui;ex-api.mydomainn.com=api'
-
   elasticsearch:
-    image: gmt2001/elasticsearch:7.7.1
+    image: gmt2001/elasticsearch:latest
     restart: always
     environment:
       discovery.type: single-node
       xpack.security.enabled: 'false'
-      ES_JAVA_OPTS: -Xms512m -Xmx512m
-#    ports:
-#      - 9200:9200
-#      - 9300:9300
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+    #ports:
+    #  - 9200:9200
+    #  - 9300:9300
     expose:
       - 9200
       - 9300
     volumes:
-      - esdata:/var/data/elasticsearch
+      - esdata7:/usr/share/elasticsearch/data
 
   kibana:
     depends_on:
       - elasticsearch
-    image: gmt2001/kibana:7.7.1
+    image: gmt2001/kibana:latest
     restart: always
-#    ports:
-#      - 5601:5601
+    #ports:
+    #  - 5601:5601
     expose:
-      - 5601
+      - 560
 
   redis:
-    image: redis:5.0-alpine
+    image: redis:6.0-alpine
     restart: always
-#    ports:
-#      - 6379:6379
+    #ports:
+    #  - 6379:6379
     expose:
       - 6379
     volumes:
       - redisdata:/data
 
 volumes:
-  esdata:
+  esdata7:
     driver: local
   appdata:
     driver: local
   redisdata:
     driver: local
-#  ssldata:
-#    driver: local
+  ssldata:
+    driver: local
