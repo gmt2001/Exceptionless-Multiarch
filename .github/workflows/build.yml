@@ -11,7 +11,8 @@ env:
   PUPPETEER_VERSION: 1.15.0
   PUPPETEER_NODE_VERSION: 10.15.3
   EXCEPTIONLESS_VERSION: 7.0.9
-  EXCEPTIONLESS_DOTNET_VERSION: 5.0
+  EXCEPTIONLESS_DOTNET_SDK_VERSION: 5.0.103
+  EXCEPTIONLESS_DOTNET_VERSION: 5.0.3
   EXCEPTIONLESS_UI_VERSION: 3.0.12
 
 jobs:
@@ -198,9 +199,9 @@ jobs:
         git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
         rm Dockerfile
         mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
-        docker buildx build --platform linux/amd64,linux/arm64 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:latest -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
-        docker buildx build --platform linux/amd64,linux/arm64 --target app --file Dockerfile -t ${DOCKER_USER}/exceptionless-app:latest -t ${DOCKER_USER}/exceptionless-app:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
-        docker buildx build --platform linux/amd64,linux/arm64 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:latest -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:latest -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_DOTNET_SDK_VERSION=${EXCEPTIONLESS_DOTNET_SDK_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --target app --file Dockerfile -t ${DOCKER_USER}/exceptionless-app:latest -t ${DOCKER_USER}/exceptionless-app:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_DOTNET_SDK_VERSION=${EXCEPTIONLESS_DOTNET_SDK_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
+        docker buildx build --platform linux/amd64,linux/arm64 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:latest -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_DOTNET_SDK_VERSION=${EXCEPTIONLESS_DOTNET_SDK_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
   build-exceptionless-ui:
     name: Docker Build of Exceptionless.UI on ubuntu-latest
     runs-on: ubuntu-latest
