@@ -3,7 +3,7 @@ ARG EXCEPTIONLESS_DOTNET_VERSION
 ARG EXCEPTIONLESS_DOTNET_SDK_VERSION
 FROM exceptionless/${EXCEPTIONLESS_UI_VERSION} AS ui
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:${EXCEPTIONLESS_DOTNET_SDK_VERSION} AS build
+FROM mcr.microsoft.com/dotnet/sdk:${EXCEPTIONLESS_DOTNET_SDK_VERSION} AS build
 WORKDIR /app
 
 ARG TARGETPLATFORM
@@ -20,34 +20,19 @@ RUN for file in $(ls *.csproj); do mkdir -p src/${file%.*}/ && mv $file src/${fi
 COPY tests/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p tests/${file%.*}/ && mv $file tests/${file%.*}/; done
 
-RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then dotnet restore -r linux-arm64 ; fi
-
-RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/amd64" ] ; then dotnet restore -r linux-x64 ; fi
+RUN dotnet restore
 
 # Copy everything else and build app
 COPY . .
 
-RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then dotnet build -c Release -r linux-arm64 ; fi
-
-RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/amd64" ] ; then dotnet build -c Release -r linux-x64 ; fi
+RUN dotnet build -c Release
 
 # job-publish
 
 FROM build AS job-publish
 WORKDIR /app/src/Exceptionless.Job
 
-ARG TARGETPLATFORM
-ARG BUILDPLATFORM
-
-RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then dotnet publish -c Release -o out -r linux-arm64 ; fi
-
-RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/amd64" ] ; then dotnet publish -c Release -o out -r linux-x64 ; fi
+RUN dotnet publish -c Release -o out
 
 # job
 
@@ -61,14 +46,7 @@ ENTRYPOINT [ "dotnet", "Exceptionless.Job.dll" ]
 FROM build AS api-publish
 WORKDIR /app/src/Exceptionless.Web
 
-ARG TARGETPLATFORM
-ARG BUILDPLATFORM
-
-RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/arm64" ] ; then dotnet publish -c Release -o out -r linux-arm64 ; fi
-
-RUN set -x \
-  && if [ "${TARGETPLATFORM}" = "linux/amd64" ] ; then dotnet publish -c Release -o out -r linux-x64 ; fi
+RUN dotnet publish -c Release -o out
 
 # api
 
