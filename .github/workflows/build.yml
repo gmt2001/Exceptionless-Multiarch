@@ -65,12 +65,11 @@ jobs:
         else
           echo "##[set-output name=alreadypublished;]$(echo no)"
         fi
-        cd ${GITHUB_WORKSPACE}/ElasticSearch
     - name: Build and push
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
       uses: docker/build-push-action@v2
       with:
-        context: .
+        context: ${{ github.workspace }}/ElasticSearch
         push: true
         tags: |
           ${{ secrets.DOCKER_USER }}/elasticsearch:latest
@@ -78,7 +77,7 @@ jobs:
         platforms: |
           linux/amd64
           linux/arm64
-        file: Dockerfile
+        file: ${{ github.workspace }}/ElasticSearch/Dockerfile
         build-args: |
           ELASTICSEARCH_VERSION=${{ env.ELASTIC_VERSION }}
   build-kibana:
@@ -130,12 +129,11 @@ jobs:
         else
           echo "##[set-output name=alreadypublished;]$(echo no)"
         fi
-        cd ${GITHUB_WORKSPACE}/Kibana
     - name: Build and push
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
       uses: docker/build-push-action@v2
       with:
-        context: .
+        context: ${{ github.workspace }}/Kibana
         push: true
         tags: |
           ${{ secrets.DOCKER_USER }}/kibana:latest
@@ -143,7 +141,7 @@ jobs:
         platforms: |
           linux/amd64
           linux/arm64
-        file: Dockerfile
+        file: ${{ github.workspace }}/Kibana/Dockerfile
         build-args: |
           KIBANA_VERSION=${{ env.KIBANA_VERSION }}
           KIBANA_NODE_VERSION=${{ env.KIBANA_NODE_VERSION }}
@@ -196,19 +194,18 @@ jobs:
         else
           echo "##[set-output name=alreadypublished;]$(echo no)"
         fi
-        cd ${GITHUB_WORKSPACE}/Puppeteer
     - name: Build and push
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
       uses: docker/build-push-action@v2
       with:
-        context: .
+        context: ${{ github.workspace }}/Puppeteer
         push: true
         tags: |
           ${{ secrets.DOCKER_USER }}/puppeteer:${{ env.PUPPETEER_VERSION }}
         platforms: |
           linux/amd64
           linux/arm64
-        file: Dockerfile
+        file: ${{ github.workspace }}/Puppeteer/Dockerfile
         build-args: |
           PUPPETEER_NODE_VERSION=${{ env.PUPPETEER_NODE_VERSION }}
   build-exceptionless-api:
@@ -260,17 +257,17 @@ jobs:
           echo "##[set-output name=alreadypublished;]$(echo yes)"
         else
           echo "##[set-output name=alreadypublished;]$(echo no)"
+          mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
+          cd ${GITHUB_WORKSPACE}/Exceptionless-Build
+          git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
+          rm Dockerfile
+          mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
         fi
-        mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
-        cd ${GITHUB_WORKSPACE}/Exceptionless-Build
-        git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
-        rm Dockerfile
-        mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
     - name: Build and push
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
       uses: docker/build-push-action@v2
       with:
-        context: .
+        context: ${{ github.workspace }}/Exceptionless-Build
         push: true
         tags: |
           ${{ secrets.DOCKER_USER }}/exceptionless-api:latest
@@ -278,7 +275,7 @@ jobs:
         platforms: |
           linux/amd64
           linux/arm64
-        file: Dockerfile
+        file: ${{ github.workspace }}/Exceptionless-Build/Dockerfile
         build-args: |
           EXCEPTIONLESS_DOTNET_VERSION=${{ env.EXCEPTIONLESS_DOTNET_VERSION }}
           EXCEPTIONLESS_DOTNET_SDK_VERSION=${{ env.EXCEPTIONLESS_DOTNET_SDK_VERSION }}
@@ -334,17 +331,17 @@ jobs:
           echo "##[set-output name=alreadypublished;]$(echo yes)"
         else
           echo "##[set-output name=alreadypublished;]$(echo no)"
+          mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
+          cd ${GITHUB_WORKSPACE}/Exceptionless-Build
+          git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
+          rm Dockerfile
+          mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
         fi
-        mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
-        cd ${GITHUB_WORKSPACE}/Exceptionless-Build
-        git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
-        rm Dockerfile
-        mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
     - name: Build and push
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
       uses: docker/build-push-action@v2
       with:
-        context: .
+        context: ${{ github.workspace }}/Exceptionless-Build
         push: true
         tags: |
           ${{ secrets.DOCKER_USER }}/exceptionless-app:latest
@@ -352,7 +349,7 @@ jobs:
         platforms: |
           linux/amd64
           linux/arm64
-        file: Dockerfile
+        file: ${{ github.workspace }}/Exceptionless-Build/Dockerfile
         build-args: |
           EXCEPTIONLESS_DOTNET_VERSION=${{ env.EXCEPTIONLESS_DOTNET_VERSION }}
           EXCEPTIONLESS_DOTNET_SDK_VERSION=${{ env.EXCEPTIONLESS_DOTNET_SDK_VERSION }}
@@ -408,17 +405,17 @@ jobs:
           echo "##[set-output name=alreadypublished;]$(echo yes)"
         else
           echo "##[set-output name=alreadypublished;]$(echo no)"
+          mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
+          cd ${GITHUB_WORKSPACE}/Exceptionless-Build
+          git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
+          rm Dockerfile
+          mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
         fi
-        mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
-        cd ${GITHUB_WORKSPACE}/Exceptionless-Build
-        git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
-        rm Dockerfile
-        mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
     - name: Build and push
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
       uses: docker/build-push-action@v2
       with:
-        context: .
+        context: ${{ github.workspace }}/Exceptionless-Build
         push: true
         tags: |
           ${{ secrets.DOCKER_USER }}/exceptionless-job:latest
@@ -426,7 +423,7 @@ jobs:
         platforms: |
           linux/amd64
           linux/arm64
-        file: Dockerfile
+        file: ${{ github.workspace }}/Exceptionless-Build/Dockerfile
         build-args: |
           EXCEPTIONLESS_DOTNET_VERSION=${{ env.EXCEPTIONLESS_DOTNET_VERSION }}
           EXCEPTIONLESS_DOTNET_SDK_VERSION=${{ env.EXCEPTIONLESS_DOTNET_SDK_VERSION }}
@@ -482,17 +479,17 @@ jobs:
           echo "##[set-output name=alreadypublished;]$(echo yes)"
         else
           echo "##[set-output name=alreadypublished;]$(echo no)"
+          mkdir ${GITHUB_WORKSPACE}/Exceptionless.UI-Build
+          cd ${GITHUB_WORKSPACE}/Exceptionless.UI-Build
+          git clone --branch v${EXCEPTIONLESS_UI_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.UI.git .
+          rm Dockerfile
+          mv ${GITHUB_WORKSPACE}/Exceptionless.UI/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless.UI-Build/Dockerfile
         fi
-        mkdir ${GITHUB_WORKSPACE}/Exceptionless.UI-Build
-        cd ${GITHUB_WORKSPACE}/Exceptionless.UI-Build
-        git clone --branch v${EXCEPTIONLESS_UI_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.UI.git .
-        rm Dockerfile
-        mv ${GITHUB_WORKSPACE}/Exceptionless.UI/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless.UI-Build/Dockerfile
     - name: Build and push
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
       uses: docker/build-push-action@v2
       with:
-        context: .
+        context: ${{ github.workspace }}/Exceptionless.UI-Build
         push: true
         tags: |
           ${{ secrets.DOCKER_USER }}/exceptionless-ui:latest
@@ -500,7 +497,7 @@ jobs:
         platforms: |
           linux/amd64
           linux/arm64
-        file: Dockerfile
+        file: ${{ github.workspace }}/Exceptionless.UI-Build/Dockerfile
         build-args: |
           PUPPETEER_VERSION=${{ env.PUPPETEER_VERSION }}
           EXCEPTIONLESS_UI_VERSION=${{ env.EXCEPTIONLESS_UI_VERSION }}
