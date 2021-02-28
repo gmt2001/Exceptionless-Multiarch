@@ -51,8 +51,8 @@ jobs:
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_CLITOKEN }}
     - name: Check existing build
       id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
@@ -72,8 +72,8 @@ jobs:
       with:
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USER }}/elasticsearch:latest
-          ${{ secrets.DOCKERHUB_USER }}/elasticsearch:${{ env.ELASTIC_VERSION }}
+          ${{ secrets.DOCKER_USER }}/elasticsearch:latest
+          ${{ secrets.DOCKER_USER }}/elasticsearch:${{ env.ELASTIC_VERSION }}
         platforms: |
           linux/amd64
           linux/arm64
@@ -115,8 +115,8 @@ jobs:
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_CLITOKEN }}
     - name: Check existing build
       id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
@@ -136,8 +136,8 @@ jobs:
       with:
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USER }}/kibana:latest
-          ${{ secrets.DOCKERHUB_USER }}/kibana:${{ env.KIBANA_VERSION }}
+          ${{ secrets.DOCKER_USER }}/kibana:latest
+          ${{ secrets.DOCKER_USER }}/kibana:${{ env.KIBANA_VERSION }}
         platforms: |
           linux/amd64
           linux/arm64
@@ -180,8 +180,8 @@ jobs:
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_CLITOKEN }}
     - name: Check existing build
       id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
@@ -201,7 +201,7 @@ jobs:
       with:
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USER }}/puppeteer:${{ env.PUPPETEER_VERSION }}
+          ${{ secrets.DOCKER_USER }}/puppeteer:${{ env.PUPPETEER_VERSION }}
         platforms: |
           linux/amd64
           linux/arm64
@@ -244,8 +244,8 @@ jobs:
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_CLITOKEN }}
     - name: Check existing build
       id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
@@ -269,8 +269,8 @@ jobs:
       with:
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USER }}/exceptionless-api:latest
-          ${{ secrets.DOCKERHUB_USER }}/exceptionless-api:${{ env.EXCEPTIONLESS_VERSION }}
+          ${{ secrets.DOCKER_USER }}/exceptionless-api:latest
+          ${{ secrets.DOCKER_USER }}/exceptionless-api:${{ env.EXCEPTIONLESS_VERSION }}
         platforms: |
           linux/amd64
           linux/arm64
@@ -317,8 +317,8 @@ jobs:
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_CLITOKEN }}
     - name: Check existing build
       id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
@@ -342,8 +342,8 @@ jobs:
       with:
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USER }}/exceptionless-app:latest
-          ${{ secrets.DOCKERHUB_USER }}/exceptionless-app:${{ env.EXCEPTIONLESS_VERSION }}
+          ${{ secrets.DOCKER_USER }}/exceptionless-app:latest
+          ${{ secrets.DOCKER_USER }}/exceptionless-app:${{ env.EXCEPTIONLESS_VERSION }}
         platforms: |
           linux/amd64
           linux/arm64
@@ -390,8 +390,8 @@ jobs:
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_CLITOKEN }}
     - name: Check existing build
       id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
@@ -415,8 +415,8 @@ jobs:
       with:
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USER }}/exceptionless-job:latest
-          ${{ secrets.DOCKERHUB_USER }}/exceptionless-job:${{ env.EXCEPTIONLESS_VERSION }}
+          ${{ secrets.DOCKER_USER }}/exceptionless-job:latest
+          ${{ secrets.DOCKER_USER }}/exceptionless-job:${{ env.EXCEPTIONLESS_VERSION }}
         platforms: |
           linux/amd64
           linux/arm64
@@ -463,8 +463,8 @@ jobs:
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_CLITOKEN }}
     - name: Check existing build
       id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
@@ -488,8 +488,8 @@ jobs:
       with:
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USER }}/exceptionless-ui:latest
-          ${{ secrets.DOCKERHUB_USER }}/exceptionless-ui:${{ env.EXCEPTIONLESS_UI_VERSION }}
+          ${{ secrets.DOCKER_USER }}/exceptionless-ui:latest
+          ${{ secrets.DOCKER_USER }}/exceptionless-ui:${{ env.EXCEPTIONLESS_UI_VERSION }}
         platforms: |
           linux/amd64
           linux/arm64
