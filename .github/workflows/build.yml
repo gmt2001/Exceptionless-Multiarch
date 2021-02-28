@@ -41,26 +41,45 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
+    - name: Set up QEMU
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      uses: crazy-max/ghaction-docker-buildx@v1
-      with:
-        buildx-version: latest
-        qemu-version: latest
+      uses: docker/setup-buildx-action@v1
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push Docker
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+    - name: Check existing build
+      id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
         if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/elasticsearch/tags/${ELASTIC_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
           echo Build already published, skipping...
-          exit 0
+          echo "##[set-output name=alreadypublished;]$(echo yes)"
+        else
+          echo "##[set-output name=alreadypublished;]$(echo no)"
         fi
         cd ${GITHUB_WORKSPACE}/ElasticSearch
-        docker buildx build --platform linux/amd64,linux/arm64 --file Dockerfile -t ${DOCKER_USER}/elasticsearch:latest -t ${DOCKER_USER}/elasticsearch:${ELASTIC_VERSION} --build-arg ELASTICSEARCH_VERSION=${ELASTIC_VERSION} --push .
+    - name: Build and push
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USER }}/elasticsearch:latest
+          ${{ secrets.DOCKERHUB_USER }}/elasticsearch:${{ env.ELASTIC_VERSION }}
+        platforms: |
+          linux/amd64
+          linux/arm64
+        file: Dockerfile
+        build-args: |
+          ELASTICSEARCH_VERSION=${{ env.ELASTIC_VERSION }}
   build-kibana:
     name: Docker Build of Kibana on ubuntu-latest
     runs-on: ubuntu-latest
@@ -86,26 +105,46 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
+    - name: Set up QEMU
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      uses: crazy-max/ghaction-docker-buildx@v1
-      with:
-        buildx-version: latest
-        qemu-version: latest
+      uses: docker/setup-buildx-action@v1
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push  Docker
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+    - name: Check existing build
+      id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
         if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/kibana/tags/${KIBANA_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
           echo Build already published, skipping...
-          exit 0
+          echo "##[set-output name=alreadypublished;]$(echo yes)"
+        else
+          echo "##[set-output name=alreadypublished;]$(echo no)"
         fi
         cd ${GITHUB_WORKSPACE}/Kibana
-        docker buildx build --platform linux/amd64,linux/arm64 --file Dockerfile -t ${DOCKER_USER}/kibana:latest -t ${DOCKER_USER}/kibana:${KIBANA_VERSION} --build-arg KIBANA_VERSION=${KIBANA_VERSION} --build-arg KIBANA_NODE_VERSION=${KIBANA_NODE_VERSION} --push .
+    - name: Build and push
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USER }}/kibana:latest
+          ${{ secrets.DOCKERHUB_USER }}/kibana:${{ env.KIBANA_VERSION }}
+        platforms: |
+          linux/amd64
+          linux/arm64
+        file: Dockerfile
+        build-args: |
+          KIBANA_VERSION=${{ env.KIBANA_VERSION }}
+          KIBANA_NODE_VERSION=${{ env.KIBANA_NODE_VERSION }}
   build-puppeteer:
     name: Docker Build of Node + Puppeteer on ubuntu-latest
     runs-on: ubuntu-latest
@@ -131,28 +170,47 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
+    - name: Set up QEMU
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      uses: crazy-max/ghaction-docker-buildx@v1
-      with:
-        buildx-version: latest
-        qemu-version: latest
+      uses: docker/setup-buildx-action@v1
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push  Docker
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+    - name: Check existing build
+      id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
         if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/puppeteer/tags/${PUPPETEER_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
           echo Build already published, skipping...
-          exit 0
+          echo "##[set-output name=alreadypublished;]$(echo yes)"
+        else
+          echo "##[set-output name=alreadypublished;]$(echo no)"
         fi
         cd ${GITHUB_WORKSPACE}/Puppeteer
-        docker buildx build --platform linux/amd64,linux/arm64 --file Dockerfile -t ${DOCKER_USER}/puppeteer:${PUPPETEER_VERSION} --build-arg PUPPETEER_NODE_VERSION=${PUPPETEER_NODE_VERSION} --push .
-  build-exceptionless:
-    name: Docker Build of Exceptionless on ubuntu-latest
+    - name: Build and push
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USER }}/puppeteer:${{ env.PUPPETEER_VERSION }}
+        platforms: |
+          linux/amd64
+          linux/arm64
+        file: Dockerfile
+        build-args: |
+          PUPPETEER_NODE_VERSION=${{ env.PUPPETEER_NODE_VERSION }}
+  build-exceptionless-api:
+    name: Docker Build of Exceptionless.API on ubuntu-latest
+    needs: build-exceptionless-ui
     runs-on: ubuntu-latest
     steps:
     - name: Check Credentials
@@ -176,32 +234,199 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
+    - name: Set up QEMU
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      uses: crazy-max/ghaction-docker-buildx@v1
-      with:
-        buildx-version: latest
-        qemu-version: latest
+      uses: docker/setup-buildx-action@v1
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push  Docker
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+    - name: Check existing build
+      id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
         if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/exceptionless-api/tags/${EXCEPTIONLESS_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
           echo Build already published, skipping...
-          exit 0
+          echo "##[set-output name=alreadypublished;]$(echo yes)"
+        else
+          echo "##[set-output name=alreadypublished;]$(echo no)"
         fi
         mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
         cd ${GITHUB_WORKSPACE}/Exceptionless-Build
         git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
         rm Dockerfile
         mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
-        docker buildx build --platform linux/amd64,linux/arm64 --target api --file Dockerfile -t ${DOCKER_USER}/exceptionless-api:latest -t ${DOCKER_USER}/exceptionless-api:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_DOTNET_SDK_VERSION=${EXCEPTIONLESS_DOTNET_SDK_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
-        docker buildx build --platform linux/amd64,linux/arm64 --target app --file Dockerfile -t ${DOCKER_USER}/exceptionless-app:latest -t ${DOCKER_USER}/exceptionless-app:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_DOTNET_SDK_VERSION=${EXCEPTIONLESS_DOTNET_SDK_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
-        docker buildx build --platform linux/amd64,linux/arm64 --target job --file Dockerfile -t ${DOCKER_USER}/exceptionless-job:latest -t ${DOCKER_USER}/exceptionless-job:${EXCEPTIONLESS_VERSION} --build-arg EXCEPTIONLESS_DOTNET_VERSION=${EXCEPTIONLESS_DOTNET_VERSION} --build-arg EXCEPTIONLESS_DOTNET_SDK_VERSION=${EXCEPTIONLESS_DOTNET_SDK_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION} --push .
+    - name: Build and push
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USER }}/exceptionless-api:latest
+          ${{ secrets.DOCKERHUB_USER }}/exceptionless-api:${{ env.EXCEPTIONLESS_VERSION }}
+        platforms: |
+          linux/amd64
+          linux/arm64
+        file: Dockerfile
+        build-args: |
+          EXCEPTIONLESS_DOTNET_VERSION=${{ env.EXCEPTIONLESS_DOTNET_VERSION }}
+          EXCEPTIONLESS_DOTNET_SDK_VERSION=${{ env.EXCEPTIONLESS_DOTNET_SDK_VERSION }}
+          EXCEPTIONLESS_UI_VERSION=${{ env.EXCEPTIONLESS_UI_VERSION }}
+          DOCKER_USER=${{ secrets.DOCKER_USER }}
+        target: api
+  build-exceptionless-app:
+    name: Docker Build of Exceptionless.App on ubuntu-latest
+    needs: build-exceptionless-ui
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Credentials
+      id: check_credentials
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_CLITOKEN: ${{ secrets.DOCKER_CLITOKEN }}
+      run: |
+        if [ "${DOCKER_USER}" == "" ]; then
+          echo "Missing User"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        elif [ "${DOCKER_CLITOKEN}" == "" ]; then
+          echo "Missing Cli Token"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        else
+          echo "All secrets present"
+          echo "##[set-output name=missingsecrets;]$(echo no)"
+        fi
+    - name: Checkout Repository
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - name: Set up QEMU
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub Registry
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+    - name: Check existing build
+      id: check_existing
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      run: |
+        if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/exceptionless-app/tags/${EXCEPTIONLESS_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
+          echo Build already published, skipping...
+          echo "##[set-output name=alreadypublished;]$(echo yes)"
+        else
+          echo "##[set-output name=alreadypublished;]$(echo no)"
+        fi
+        mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
+        cd ${GITHUB_WORKSPACE}/Exceptionless-Build
+        git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
+        rm Dockerfile
+        mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
+    - name: Build and push
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USER }}/exceptionless-app:latest
+          ${{ secrets.DOCKERHUB_USER }}/exceptionless-app:${{ env.EXCEPTIONLESS_VERSION }}
+        platforms: |
+          linux/amd64
+          linux/arm64
+        file: Dockerfile
+        build-args: |
+          EXCEPTIONLESS_DOTNET_VERSION=${{ env.EXCEPTIONLESS_DOTNET_VERSION }}
+          EXCEPTIONLESS_DOTNET_SDK_VERSION=${{ env.EXCEPTIONLESS_DOTNET_SDK_VERSION }}
+          EXCEPTIONLESS_UI_VERSION=${{ env.EXCEPTIONLESS_UI_VERSION }}
+          DOCKER_USER=${{ secrets.DOCKER_USER }}
+        target: app
+  build-exceptionless-job:
+    name: Docker Build of Exceptionless.Job on ubuntu-latest
+    needs: build-exceptionless-ui
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Credentials
+      id: check_credentials
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_CLITOKEN: ${{ secrets.DOCKER_CLITOKEN }}
+      run: |
+        if [ "${DOCKER_USER}" == "" ]; then
+          echo "Missing User"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        elif [ "${DOCKER_CLITOKEN}" == "" ]; then
+          echo "Missing Cli Token"
+          echo "##[set-output name=missingsecrets;]$(echo yes)"
+        else
+          echo "All secrets present"
+          echo "##[set-output name=missingsecrets;]$(echo no)"
+        fi
+    - name: Checkout Repository
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - name: Set up QEMU
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub Registry
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+    - name: Check existing build
+      id: check_existing
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      run: |
+        if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/exceptionless-job/tags/${EXCEPTIONLESS_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
+          echo Build already published, skipping...
+          echo "##[set-output name=alreadypublished;]$(echo yes)"
+        else
+          echo "##[set-output name=alreadypublished;]$(echo no)"
+        fi
+        mkdir ${GITHUB_WORKSPACE}/Exceptionless-Build
+        cd ${GITHUB_WORKSPACE}/Exceptionless-Build
+        git clone --branch v${EXCEPTIONLESS_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.git .
+        rm Dockerfile
+        mv ${GITHUB_WORKSPACE}/Exceptionless/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless-Build/Dockerfile
+    - name: Build and push
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USER }}/exceptionless-job:latest
+          ${{ secrets.DOCKERHUB_USER }}/exceptionless-job:${{ env.EXCEPTIONLESS_VERSION }}
+        platforms: |
+          linux/amd64
+          linux/arm64
+        file: Dockerfile
+        build-args: |
+          EXCEPTIONLESS_DOTNET_VERSION=${{ env.EXCEPTIONLESS_DOTNET_VERSION }}
+          EXCEPTIONLESS_DOTNET_SDK_VERSION=${{ env.EXCEPTIONLESS_DOTNET_SDK_VERSION }}
+          EXCEPTIONLESS_UI_VERSION=${{ env.EXCEPTIONLESS_UI_VERSION }}
+          DOCKER_USER=${{ secrets.DOCKER_USER }}
+        target: job
   build-exceptionless-ui:
     name: Docker Build of Exceptionless.UI on ubuntu-latest
     runs-on: ubuntu-latest
@@ -228,27 +453,48 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
+    - name: Set up QEMU
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
+      uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      uses: crazy-max/ghaction-docker-buildx@v1
-      with:
-        buildx-version: latest
-        qemu-version: latest
+      uses: docker/setup-buildx-action@v1
     - name: Login to DockerHub Registry
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
-      run: echo ${{ secrets.DOCKER_CLITOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-    - name: Build and Push  Docker
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_CLITOKEN }}
+    - name: Check existing build
+      id: check_existing
       if: contains(steps.check_credentials.outputs.missingsecrets, 'no')
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
       run: |
         if [[ $(curl -s -I "https://registry.hub.docker.com/v2/repositories/${DOCKER_USER}/exceptionless-ui/tags/${EXCEPTIONLESS_UI_VERSION}/" | head -n 1 | cut  -d$' ' -f2) = "200" ]]; then
           echo Build already published, skipping...
-          exit 0
+          echo "##[set-output name=alreadypublished;]$(echo yes)"
+        else
+          echo "##[set-output name=alreadypublished;]$(echo no)"
         fi
         mkdir ${GITHUB_WORKSPACE}/Exceptionless.UI-Build
         cd ${GITHUB_WORKSPACE}/Exceptionless.UI-Build
         git clone --branch v${EXCEPTIONLESS_UI_VERSION} --progress --depth=1 https://github.com/exceptionless/Exceptionless.UI.git .
         rm Dockerfile
         mv ${GITHUB_WORKSPACE}/Exceptionless.UI/Dockerfile ${GITHUB_WORKSPACE}/Exceptionless.UI-Build/Dockerfile
-        docker buildx build --platform linux/amd64,linux/arm64 --file Dockerfile -t ${DOCKER_USER}/exceptionless-ui:latest -t ${DOCKER_USER}/exceptionless-ui:${EXCEPTIONLESS_UI_VERSION} --build-arg EXCEPTIONLESS_UI_VERSION=${EXCEPTIONLESS_UI_VERSION}  --build-arg PUPPETEER_VERSION=${PUPPETEER_VERSION}  --build-arg DOCKER_USER=${DOCKER_USER} --push .
+    - name: Build and push
+      if: contains(steps.check_credentials.outputs.missingsecrets, 'no') && contains(steps.check_existing.outputs.alreadypublished, 'no')
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USER }}/exceptionless-ui:latest
+          ${{ secrets.DOCKERHUB_USER }}/exceptionless-ui:${{ env.EXCEPTIONLESS_UI_VERSION }}
+        platforms: |
+          linux/amd64
+          linux/arm64
+        file: Dockerfile
+        build-args: |
+          PUPPETEER_VERSION=${{ env.PUPPETEER_VERSION }}
+          EXCEPTIONLESS_UI_VERSION=${{ env.EXCEPTIONLESS_UI_VERSION }}
+          DOCKER_USER=${{ secrets.DOCKER_USER }}
